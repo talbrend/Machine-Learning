@@ -14,5 +14,27 @@ a = np.zeros(10)
 
 b = np.zeros(20)
 
-print (b[1].itemsize)
+def memory_size(array):
+    memory = 0
+    shapush = array.shape
+    range_x = shapush[0]
+    range_y = shapush[1]
+    
+    for i in range(range_x):
+        for j in range(range_y):
+            memory += array[i][j].itemsize
+    return memory
 
+c = np.array(range(10,50))
+d = np.arange(10,50)
+
+e = np.array(range(0,9))
+e = np.reshape(e,(3,3))
+
+f= np.eye(3, k=0)
+g = np.random.rand(3,3)
+l = np.random.rand(10,10)*1000
+max_l = l.max()
+
+m = np.random.rand(30)
+print(m.mean())
