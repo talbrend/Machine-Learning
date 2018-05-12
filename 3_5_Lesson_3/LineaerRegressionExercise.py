@@ -9,6 +9,7 @@ import numpy as np
 import random
 from numpy.linalg import inv
 import math
+from matplotlib import pyplot as plt
 
 ## 1)
 
@@ -103,12 +104,15 @@ def get_array_of_points_on_parabola(nof_points, a, b, c):
         
     return np.asarray(array_of_points)
        
-
-first_array = get_array_of_points_on_line(10, 0, random.randint(0,9))
+slope_for_first_array = random.randint(0,9)
+first_array = get_array_of_points_on_line(10, slope_for_first_array, 0)
 
 normalized_first_array = add_gaussian_noise_to_array(first_array)
 
-second_array = get_array_of_points_on_line(10, random.randint(0,9), random.randint(0,9))
+elevation_for_second_array = random.randint(0,9)
+slope_for_second_array = random.randint(0,9)
+
+second_array = get_array_of_points_on_line(10, slope_for_second_array, elevation_for_second_array)
 
 normalized_second_array = add_gaussian_noise_to_array(second_array)
 
@@ -116,7 +120,7 @@ third_array = get_array_of_points_on_parabola(20, 1, 2, 1)
 
 
 
-## 2)
+## 3)
 
 mat_1 = []
 mat_2 = []
@@ -130,6 +134,45 @@ mat_3 = np.matmul(mat_1, mat_2)
 transposed_mat_3 = np.transpose(mat_3)
 inversed_mat_3 = inv(mat_3)
 
+
+## 4)
+
+X_ = first_array[:,0]
+X_ = X_.reshape((first_array.shape[0],1))
+
+Y_ = normalized_first_array[:,1]
+Y_ = Y_.reshape((normalized_first_array.shape[0],1))
+
+transposed_X_ = np.transpose(X_)
+inversed_X_X_tranpose = inv(np.matmul(transposed_X_, X_))
+crazy_matmul = np.matmul(inversed_X_X_tranpose,transposed_X_)
+H = np.matmul(crazy_matmul,Y_)
+
+
+## 5)
+
+X__ = second_array[:,0]
+X__ = X__.reshape((second_array.shape[0],1))
+ones = np.ones(X__.shape)
+X__ = np.hstack((X__, ones))
+
+Y__ = normalized_second_array[:,1]
+Y__ = Y__.reshape((normalized_second_array.shape[0],1))
+
+transposed_X__ = np.transpose(X__)
+inversed_X_X__tranpose = inv(np.matmul(transposed_X__, X__))
+crazy_matmul_ = np.matmul(inversed_X_X__tranpose,transposed_X__)
+H_ = np.matmul(crazy_matmul_,Y__)
+
+## 6)
+
+print("Showing the first normalized array :")
+plt.plot(first_array[:,0],normalized_first_array[:,1])
+
+x_vals = np.linspace(0,100)
+y_vals = H[0][0]*x_vals
+plt.plot(x_vals, y_vals)
+plt.show()
 
 ## 8)
 
