@@ -57,12 +57,41 @@ def gradient_at_theta_j(index_of_theta,theta_0, theta_1, theta_2, M, x, y):
     return (1/(M)) * ret_val
 
 def gradient_descent(nof_iterations, theta, alpha,x,y):
+    difference_theta = []
     for iteration in range(nof_iterations):
         copy_theta = copy.deepcopy(theta)
         for j in range(len(theta)):
             copy_theta[j] = theta[j] - alpha * gradient_at_theta_j(j,theta[0], theta[1], theta[2], len(x), x, y)
+        difference_theta.append ([a_i - b_i for a_i, b_i in zip(theta, copy.deepcopy(copy_theta))])
         theta = copy.deepcopy(copy_theta)
-    return theta
+        #print("theta: " + str(theta) + "\n")
+        #print("difference_theta: " + str(difference_theta[iteration]) + "\n")
+    return theta, difference_theta
+
+def find_best_alpha(nof_iterations, small_alpha, big_alpha, hop,starting_point, x, y):
+    i = 0
+    direction = -1
+    loss = loss_gradient(starting_point[0], starting_point[1], starting_point[2], len(x), x, y)
+    alpha = big_alpha
+    previous_loss = loss
+    while True:
+           result = gradient_descent(nof_iterations, starting_point, alpha,x,y)
+           final_theta = result[0]
+           loss = loss_gradient(final_theta[0], final_theta[1], final_theta[2], len(x), x, y)
+           if (loss > previous_loss and i != 0):
+               direction *= -1
+               hop = hop*0.6
+           alpha += direction*hop
+           previous_loss = loss
+           print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+           print("iteration number " + str(i) + ": alpha = " + str(alpha) + "\n")
+           print("loss = " + str(loss) + ", direction: " + str(direction) + " , hop: " + str(hop) + "\n")
+           print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+           i+=1
+           if i==5000 or hop == 0:
+               print("find_best_alpha ended with hop == :" + str(hop) + "\n" )
+               break
+    return alpha
     
 
 ## Linear regression
@@ -97,6 +126,7 @@ print("Gradient descent exercises:")
 
 ## 1.A
 alpha = [1,0.1,0.01]
+alpha = [0.001]
 nof_iterations = 100
 starting_point = [2,2,0]
 
@@ -106,9 +136,17 @@ loss_at_starting_point = loss_gradient(starting_point[0], starting_point[1], sta
 print("loss at starting point (2,2,0): " + str(loss_at_starting_point) + "\n")
 
 for i in range(len(alpha)):
-    final_theta = gradient_descent(nof_iterations, starting_point, alpha[i],x_gradient,y_gradient)
-    print("for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
+    result = gradient_descent(nof_iterations, starting_point, alpha[i],x_gradient,y_gradient)
+    final_theta = result[0]
+    difference_theta = result[1]
+    #print("for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
     loss_at_end_point = loss_gradient(final_theta[0], final_theta[1], final_theta[2], 4, x_gradient, y_gradient)
-    print("loss is: " + str(loss_at_end_point) + "\n")
+    #print("loss is: " + str(loss_at_end_point) + "\n")
+    
+best_alpha = find_best_alpha(100, 0.01, 1, 0.01,starting_point, x_gradient, y_gradient)
+print("best alpha is : " + str(best_alpha) + "\n")
+    
+           
+        
 
 
