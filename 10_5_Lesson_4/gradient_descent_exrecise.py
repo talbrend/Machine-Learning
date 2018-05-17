@@ -68,14 +68,50 @@ def gradient_descent(nof_iterations, theta, alpha,x,y):
         #print("difference_theta: " + str(difference_theta[iteration]) + "\n")
     return theta, difference_theta
 
-def find_best_alpha(nof_iterations, small_alpha, big_alpha, hop,starting_point, x, y):
+def gradient_descent_with_momentum(nof_iterations, theta, alpha,x,y,momentum):
+    previous_gradient = [0] * len(theta)
+    difference_theta = []
+    for iteration in range(nof_iterations):
+        copy_theta = copy.deepcopy(theta)
+        for j in range(len(theta)):
+            vt_j = previous_gradient[j]*momentum + alpha * gradient_at_theta_j(j,theta[0], theta[1], theta[2], len(x), x, y)
+            copy_theta[j] = theta[j] - vt_j
+            previous_gradient[j] = vt_j
+        difference_theta.append ([a_i - b_i for a_i, b_i in zip(theta, copy.deepcopy(copy_theta))])
+        theta = copy.deepcopy(copy_theta)
+        #print("theta: " + str(theta) + "\n")
+        #print("difference_theta: " + str(difference_theta[iteration]) + "\n")
+    return theta, difference_theta
+
+def gradient_descent_with_nesterov(nof_iterations, theta, alpha,x,y,momentum):
+    previous_gradient = [0] * len(theta)
+    difference_theta = []
+    for iteration in range(nof_iterations):
+        copy_theta = copy.deepcopy(theta)
+        for j in range(len(theta)):
+            offset = previous_gradient[j]*momentum
+            vt_j =  offset + alpha * gradient_at_theta_j(j,theta[0]-offset, theta[1]-offset, theta[2]-offset, len(x), x, y)
+            copy_theta[j] = theta[j] - vt_j
+            previous_gradient[j] = vt_j
+        difference_theta.append ([a_i - b_i for a_i, b_i in zip(theta, copy.deepcopy(copy_theta))])
+        theta = copy.deepcopy(copy_theta)
+        #print("theta: " + str(theta) + "\n")
+        #print("difference_theta: " + str(difference_theta[iteration]) + "\n")
+    return theta, difference_theta
+
+def find_best_alpha(nof_iterations, small_alpha, big_alpha, hop,starting_point, x, y, method):
     i = 0
     direction = -1
     loss = loss_gradient(starting_point[0], starting_point[1], starting_point[2], len(x), x, y)
     alpha = big_alpha
     previous_loss = loss
     while True:
-           result = gradient_descent(nof_iterations, starting_point, alpha,x,y)
+           if method == 0:
+               result = gradient_descent(nof_iterations, starting_point, alpha,x,y)
+           if method == 1:
+               result = gradient_descent_with_momentum(nof_iterations, starting_point, alpha,x,y,0.9)
+           if method == 2:
+               result = gradient_descent_with_nesterov(nof_iterations, starting_point, alpha,x,y,0.9)
            final_theta = result[0]
            loss = loss_gradient(final_theta[0], final_theta[1], final_theta[2], len(x), x, y)
            if (loss > previous_loss and i != 0):
@@ -88,8 +124,9 @@ def find_best_alpha(nof_iterations, small_alpha, big_alpha, hop,starting_point, 
            print("loss = " + str(loss) + ", direction: " + str(direction) + " , hop: " + str(hop) + "\n")
            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
            i+=1
-           if i==5000 or hop == 0:
+           if i==3000 or hop == 0:
                print("find_best_alpha ended with hop == :" + str(hop) + "\n" )
+               print("ended with theta: " + str(final_theta) + "\n")
                break
     return alpha
     
@@ -126,11 +163,11 @@ print("Gradient descent exercises:")
 
 ## 1.A
 alpha = [1,0.1,0.01]
-alpha = [0.001]
+alpha = [0.01]
 nof_iterations = 100
 starting_point = [2,2,0]
 
-print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 print("1.A\n")
 loss_at_starting_point = loss_gradient(starting_point[0], starting_point[1], starting_point[2], 4, x_gradient, y_gradient)
 print("loss at starting point (2,2,0): " + str(loss_at_starting_point) + "\n")
@@ -139,14 +176,43 @@ for i in range(len(alpha)):
     result = gradient_descent(nof_iterations, starting_point, alpha[i],x_gradient,y_gradient)
     final_theta = result[0]
     difference_theta = result[1]
-    #print("for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
+    print("Regular gradient descent for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
     loss_at_end_point = loss_gradient(final_theta[0], final_theta[1], final_theta[2], 4, x_gradient, y_gradient)
-    #print("loss is: " + str(loss_at_end_point) + "\n")
-    
-best_alpha = find_best_alpha(100, 0.01, 1, 0.01,starting_point, x_gradient, y_gradient)
-print("best alpha is : " + str(best_alpha) + "\n")
-    
-           
-        
+    print("loss is: " + str(loss_at_end_point) + "\n")
 
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    
+#best_alpha = find_best_alpha(100, 0.01, 1, 0.01,starting_point, x_gradient, y_gradient,0)
+#print("best alpha is : " + str(best_alpha) + "\n")
+## without momentum : ended with theta: [0.8522570168746919, 1.3584050694564795, 0.8876141557978771]     
 
+## 1.C
+
+#best_alpha = find_best_alpha(100, 0.01, 1, 0.01,starting_point, x_gradient, y_gradient,1)
+#print("best alpha with momentum is : " + str(best_alpha) + "\n")     
+
+for i in range(len(alpha)):
+    result = gradient_descent_with_momentum(nof_iterations, starting_point, alpha[i],x_gradient,y_gradient,0.9)
+    final_theta = result[0]
+    difference_theta = result[1]
+    print("gradient descent with momentum for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
+    loss_at_end_point = loss_gradient(final_theta[0], final_theta[1], final_theta[2], 4, x_gradient, y_gradient)
+    print("loss is: " + str(loss_at_end_point) + "\n")
+
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+## with momentum : ended with theta: [1.0063416696478698, 1.0042352662462823, 0.9974875653888621]     
+
+## best_alpha = find_best_alpha(100, 0.01, 1, 0.01,starting_point, x_gradient, y_gradient,2)
+##print("best alpha is : " + str(best_alpha) + "\n")  
+## with nesterov : ended with theta: [0.6987719211261971, 1.6763299153511955, 0.7929100465450443]
+## best alpha is : 0.03991512416431705
+
+for i in range(len(alpha)):
+    result = gradient_descent_with_nesterov(nof_iterations, starting_point, alpha[i],x_gradient,y_gradient,0.9)
+    final_theta = result[0]
+    difference_theta = result[1]
+    print("gradient descent with nesterov for alpha == " + str(alpha[i]) + "\nfinal theta is: " + str(final_theta))
+    loss_at_end_point = loss_gradient(final_theta[0], final_theta[1], final_theta[2], 4, x_gradient, y_gradient)
+    print("loss is: " + str(loss_at_end_point) + "\n")
+    
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
