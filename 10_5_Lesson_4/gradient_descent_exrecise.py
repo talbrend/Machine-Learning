@@ -69,14 +69,14 @@ def gradient_descent(nof_iterations, theta, alpha,x,y):
     return theta, difference_theta
 
 def gradient_descent_with_momentum(nof_iterations, theta, alpha,x,y,momentum):
-    previous_gradient = [0] * len(theta)
+    previous_vt = [0] * len(theta)
     difference_theta = []
     for iteration in range(nof_iterations):
         copy_theta = copy.deepcopy(theta)
         for j in range(len(theta)):
-            vt_j = previous_gradient[j]*momentum + alpha * gradient_at_theta_j(j,theta[0], theta[1], theta[2], len(x), x, y)
+            vt_j = previous_vt[j]*momentum + alpha * gradient_at_theta_j(j,theta[0], theta[1], theta[2], len(x), x, y)
+            previous_vt[j] = vt_j
             copy_theta[j] = theta[j] - vt_j
-            previous_gradient[j] = vt_j
         difference_theta.append ([a_i - b_i for a_i, b_i in zip(theta, copy.deepcopy(copy_theta))])
         theta = copy.deepcopy(copy_theta)
         #print("theta: " + str(theta) + "\n")
@@ -84,15 +84,15 @@ def gradient_descent_with_momentum(nof_iterations, theta, alpha,x,y,momentum):
     return theta, difference_theta
 
 def gradient_descent_with_nesterov(nof_iterations, theta, alpha,x,y,momentum):
-    previous_gradient = [0] * len(theta)
+    previous_vt = [0] * len(theta)
     difference_theta = []
     for iteration in range(nof_iterations):
         copy_theta = copy.deepcopy(theta)
         for j in range(len(theta)):
-            offset = previous_gradient[j]*momentum
-            vt_j =  offset + alpha * gradient_at_theta_j(j,theta[0]-offset, theta[1]-offset, theta[2]-offset, len(x), x, y)
+            offset = previous_vt[j]*momentum
+            vt_j = offset + alpha * gradient_at_theta_j(j,theta[0]-offset, theta[1]-offset, theta[2]-offset, len(x), x, y)
+            previous_vt[j] = vt_j
             copy_theta[j] = theta[j] - vt_j
-            previous_gradient[j] = vt_j
         difference_theta.append ([a_i - b_i for a_i, b_i in zip(theta, copy.deepcopy(copy_theta))])
         theta = copy.deepcopy(copy_theta)
         #print("theta: " + str(theta) + "\n")

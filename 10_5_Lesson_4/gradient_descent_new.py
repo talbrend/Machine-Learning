@@ -27,21 +27,29 @@ check_regression(X,y)
 # 3rd feature: constant
 X1=np.ones((4,3))
 X1[:,:-1]=X
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("Third feature constant")
 check_regression(X1,y)
 
 # 3rd feature: x1-x2
 X2=X1.copy()
 X2[:,2]=X[:,0]-X[:,1]
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("Third feature x1-x2")
 check_regression(X2,y)
 
 # 3rd feature: (x1-x2)^2
 X3=X1.copy()
 X3[:,2]=(X[:,0]-X[:,1])**2
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("Third feature (x1-x2)^2")
 check_regression(X3,y)
 
 # 3rd feature: (x1-x2)^2, 4th feature constant
 X4=np.ones((4,4))
 X4[:,:-1]=X3
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("Third feature (x1-x2)^2, 4th feature constant ")
 check_regression(X4,y)
 
 
