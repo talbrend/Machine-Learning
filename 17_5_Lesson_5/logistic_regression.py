@@ -8,9 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 
-def return_x_y_for_line(lower_x,upper_x,number,slope, elevation):
+def return_x_y_for_line(lower_x,upper_x,number,theta):
     x = np.linspace(lower_x,upper_x, num=number)
-    y = np.array([slope*item + elevation for item in list(x)])
+    
+    y = np.array([(-1*theta[2]-item*theta[0])/theta[1] for item in list(x)])
     return x,y
 
 ## 4
@@ -86,14 +87,16 @@ x_array = np.array((x_of_point_a,x_of_point_b))
 x_array = x_array.reshape((x_of_point_a.size + x_of_point_b.size,))
 y_array = np.array((y_of_point_a,y_of_point_b))
 y_array = y_array.reshape((y_of_point_a.size + y_of_point_b.size,))
-X = np.array(list(zip(x_array,y_array)))
+ones = [1 for i in range(x_of_point_a.size + x_of_point_b.size)]
+data_points = list(zip(x_array,y_array,ones))
+X = np.array(data_points)
 
 y = np.array(((np.ones(100),np.zeros(100))))
 y = y.reshape(X.shape[0])
 
 
 # 9
-nof_iterations = 10
+nof_iterations = 100
 alpha = [0.01]
 starting_point = start =  np.append(np.random.normal(0,0.1,(2)),0)
 
@@ -110,6 +113,6 @@ for i in range(len(alpha)):
     loss_at_end_point = negative_log_likelihood(y,X,final_theta)
     print("loss is: " + str(loss_at_end_point) + "\n")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    #x_of_line, y_of_line = return_x_y_for_line(-5,10,100,final_theta[1], final_theta[0])
-    #plt.plot(x_of_line, y_of_line)
+    x_of_line, y_of_line = return_x_y_for_line(-3,3,100,final_theta)
+    plt.plot(x_of_line, y_of_line)
 
