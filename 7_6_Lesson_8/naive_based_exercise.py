@@ -36,17 +36,6 @@ def get_array_of_means_for_given_target(mat):
 def get_array_of_stds_for_given_target(mat):
     return np.std(mat, axis=0)
 
-def calc_probability_(feature_mat,mean_mat, std_mat):
-    norm_mat = np.empty(mean_mat.shape,dtype=object)
-    for i in range(mean_mat.shape[0]):
-        norm_mat[i] = norm(mean_mat[i],std_mat[i])
-    ret_mat = np.zeros(feature_mat.shape)
-    for i in range(feature_mat.shape[0]):
-        for j in range(feature_mat.shape[1]):
-            ret_mat[i][j] = norm_mat[j].pdf(feature_mat[i][j])
-    
-    return ret_mat
-
 def calc_probability(row_in_mat,mean_mat, std_mat,nof_instances_in_class):
     norm_array = np.empty(mean_mat.shape,dtype=object)
     for i in range(mean_mat.shape[0]):
